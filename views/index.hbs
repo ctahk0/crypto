@@ -1,0 +1,59 @@
+<section class="get">
+    <h3>Get Data</h3>
+    <a href="/get-data">LOAD DATA</a>
+    <p>Ukupno: {{ukupno}}, Ok:  {{ok}}</p>
+    <div>
+{{!--         {{# each coins }}
+            <div>Coin pair/status: {{ this.label }} {{this.status }}</div>
+        {{/each}} --}}
+
+    <table class="table">
+	    <tbody>
+	    	<tr>
+	    		<th>Id</th>
+	    		<th>Symbol</th>
+	    		<th>Name</th>
+{{!-- 	    		<th>Label</th> --}}
+	    		<th>Status</th>
+	    		<th>Message</th>
+	    		<th>Last price</th>
+	    		<th>Ask Price</th>
+	    		<th>Bid Price</th>
+	    		<th>Buy volume</th>
+	    		<th>Sel Volume</th>
+
+{{!-- 	    		<th>Symbol</th>
+	    		<th>Bitfinex</th>
+	    		<th>Cryptopia</th>
+	    		<th>Difference</th>
+	    		<th>Status</th>
+	    		<th>Message</th> --}}
+
+	    	</tr>
+	    	{{#each coins}}
+		        	<tr>
+{{!-- 		        		<td>{{ symbol }}</td>
+	  					<td>{{ market_bitfinex }}</td>
+	  					<td>{{ market_cryptopia }}</td>
+	  					<td>{{ diff }}</td>
+	  					<td>{{ status }}</td>
+	  					<td>{{ message }}</td> --}}
+
+	  					<td>{{ id }}</td>
+	  					<td>{{ symbol }}</td>
+	  					<td>{{ name }}</td>
+{{!-- 	  					<td>{{ label }}</td> --}}
+	  					<td>{{ status }}</td>
+	  					<td>{{ message }}</td>
+	  					<td class="price">{{ lastprice }}</td>
+	  					<td class="price">{{ askprice }}</td>
+	  					<td class="price">{{ bidprice }}</td>
+	  					<td class="price">{{ buyvolume }}</td>
+	  					<td class="price">{{ sellvolume }}</td>
+		            </tr>
+	        {{/each}}
+	        
+	    </tbody>
+	</table>
+    </div>
+</section>
