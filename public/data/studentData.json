@@ -1,0 +1,46 @@
+{
+    "students": [
+
+        {
+            "name": "sandeep1",
+            "mark": 35,
+            "subject": "Geography"
+        },
+
+        {
+            "name": "sangeeta",
+            "mark": 135,
+            "subject": "English"
+        },
+
+        {
+            "name": "surabhi",
+            "mark": 315,
+            "subject": "History"
+        },
+
+        {
+            "name": "sumanta",
+            "mark": 305,
+            "subject": "Mathematics"
+        },
+
+        {
+            "name": "Ram",
+            "mark": 352,
+            "subject": "History"
+        },
+
+        {
+            "name": "John",
+            "mark": 350,
+            "subject": "Geography"
+        },
+
+        {
+            "name": "Jack",
+            "mark": 355,
+            "subject": "English"
+        }
+    ]
+}
