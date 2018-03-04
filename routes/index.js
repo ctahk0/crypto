@@ -123,10 +123,12 @@ router.get('/get-data', async function(req, res, next) {
 			  		});
 
 					val = obj_cryptopia_status[n].Symbol;
-					if (typeof coins[val] == "undefined") {
-						coins[val] = {};
+					if (val != 'BAT' && val != 'BTG'){
+						if (typeof coins[val] == "undefined") {
+							coins[val] = {};
+						}
+						coins[val].Cryptopia = cr_last;
 					}
-					coins[val].Cryptopia = cr_last;
 		  		}	
     		}
     	}
@@ -172,7 +174,8 @@ router.get('/get-data', async function(req, res, next) {
 		arr.sort(function(a, b) {
 		        a = a[1];
 		        b = b[1];
-		        return a > b ? -1 : (a < b ? 1 : 0);
+		        return b - a;
+		        // return a > b ? -1 : (a < b ? 1 : 0);
 		});
 		console.log(arr);
 		// console.log(arrcryptopia);
