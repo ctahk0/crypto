@@ -14,6 +14,7 @@ router.get('/get-data', async function(req, res, next) {
 	var arrcryptopia = [];
 	var arrpoloniex = [];
 	var arrbitfinex = [];
+	var arrbinance = [];
 	var val;				//trenutna valuta koju punimo sa lastprice
 
 	try {
@@ -23,19 +24,75 @@ router.get('/get-data', async function(req, res, next) {
     	const cryptopiaBTC = await axios('https://www.cryptopia.co.nz/api/GetMarkets/BTC');
     	const poloniexBTC = await axios('https://poloniex.com/public?command=returnTicker');
     	const poloniexInfo = await axios('https://poloniex.com/public?command=returnCurrencies');
-    	//console.log(parovi.data); // mediocre code
+    	const binance = await axios('https://api.binance.com/api/v3/ticker/price');
+    	const binanceInfo = await axios('https://www.binance.com/exchange/public/product');
+    	const binancePrices = await axios('https://api.binance.com/api/v3/ticker/bookTicker');
+    	
     	var obj_cryptopia_status = cryptopiaInfo.data.Data;
     	var obj_cryptopia = cryptopiaBTC.data.Data;
     	var obj_poloniex = poloniexBTC.data;
     	var obj_poloniexInfo = poloniexInfo.data;
+    	var obj_binanceInfo = binanceInfo.data.data;
+    	//======================== Binance ==============================================================
+    	for (var key in obj_binanceInfo) {
+    		if(obj_binanceInfo[key].symbol.includes('BTC')) {
+    			// console.log(obj_binanceInfo[key].symbol, obj_binanceInfo[key].baseAssetName);
+    			let coinName = obj_binanceInfo[key].symbol.replace("BTC", '');
+    			arrbinance.push({
+					symbol: coinName,
+					name: obj_binanceInfo[key].baseAssetName,
+					active: obj_binanceInfo[key].active,
+					status: obj_binanceInfo[key].status
+				});
+    		}
+    	}
+    	// console.log(arrbinance);
+    	for (var key in binance.data) {
+    		if(binance.data[key].symbol.includes('BTC')) {
+    			let coinName = binance.data[key].symbol.replace("BTC", '');
+            	let last = (binance.data[key].price * 1000).toPrecision(4);
+            	
+            	for (let n = 0; n < arrbinance.length; n++) {
+
+					if (arrbinance[n].symbol == coinName) {
+						arrbinance[n].lastprice = last
+					}
+				}
+
+				if (typeof coins[coinName] == "undefined") {
+	            	coins[coinName] = {};
+	            }
+	            coins[coinName].Binance = last;
+            }
+    	}
+
+    	for (var key in binancePrices.data) {
+    		if(binancePrices.data[key].symbol.includes('BTC')) {
+    			let coinName = binancePrices.data[key].symbol.replace("BTC", '');
+            	let ask = (binancePrices.data[key].askPrice * 1000).toPrecision(4);
+            	let bid = (binancePrices.data[key].bidPrice * 1000).toPrecision(4);
+            	let buyvolume = Number(binancePrices.data[key].askQty).formatMoney(2, '.', ',');
+            	let sellvolume = Number(binancePrices.data[key].bidQty).formatMoney(2, '.', ',');
+            	
+            	for (let n = 0; n < arrbinance.length; n++) {
+
+					if (arrbinance[n].symbol == coinName) {
+						arrbinance[n].askprice = ask,
+						arrbinance[n].bidprice = bid,
+						arrbinance[n].buyvolume = buyvolume,
+						arrbinance[n].sellvolume = sellvolume
+					}
+				}
+            }
+    	}
     	//======================== Poloniex =============================================================
     	for (var key in obj_poloniex) {
     		for (var n in obj_poloniexInfo) {
 	    		if( key.replace("BTC_", '') == n) {
 	                var symbol = key.replace("BTC_", '');
-	                var last = (obj_poloniex[key].last * 1000).toPrecision(5);
-	    			var ask = (obj_poloniex[key].lowestAsk * 1000).toPrecision(5);
-	    			var bid = (obj_poloniex[key].highestBid * 1000).toPrecision(5);
+	                var last = (obj_poloniex[key].last * 1000).toPrecision(4);
+	    			var ask = (obj_poloniex[key].lowestAsk * 1000).toPrecision(4);
+	    			var bid = (obj_poloniex[key].highestBid * 1000).toPrecision(4);
 	    			// var buyvolume = (obj_poloniex[key].BuyVolume).formatMoney(2, '.', ',');
 	    			// var sellvolume = (obj_poloniex[key].SellVolume).formatMoney(2, '.', ',');
 	    				arrpoloniex.push({
@@ -75,9 +132,9 @@ router.get('/get-data', async function(req, res, next) {
                 if (coinName === "IOT") {
                       coinName = "IOTA";
                 }
-            var bf_last = (bitfinex.data[key][7] * 1000).toPrecision(5);
-            var ask = (bitfinex.data[key][3] * 1000).toPrecision(5);
-            var bid = (bitfinex.data[key][1] * 1000).toPrecision(5);
+            var bf_last = (bitfinex.data[key][7] * 1000).toPrecision(4);
+            var ask = (bitfinex.data[key][3] * 1000).toPrecision(4);
+            var bid = (bitfinex.data[key][1] * 1000).toPrecision(4);
             var buyvolume = (bitfinex.data[key][4]).formatMoney(2, '.', ',');
 	    	var sellvolume = (bitfinex.data[key][2]).formatMoney(2, '.', ',');
             // ovdje punimo bitfinex
@@ -96,6 +153,7 @@ router.get('/get-data', async function(req, res, next) {
             coins[val].Bitfinex = bf_last;
 
     	}
+    	
     	//======================== Cryptopia =============================================================
     	for (var c in obj_cryptopia) {
     		//kreiraj niz
@@ -103,9 +161,9 @@ router.get('/get-data', async function(req, res, next) {
     			//var symstr = obj_cryptopia[c].Label;
     			//var sym = symstr.replace('/BTC','');
     			if (obj_cryptopia[c].Label.replace('/BTC','') == obj_cryptopia_status[n].Symbol) {
-    				var cr_last = (obj_cryptopia[c].LastPrice * 1000).toPrecision(5);	//.replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
-    				var ask = (obj_cryptopia[c].AskPrice * 1000).toPrecision(5);
-    				var bid = (obj_cryptopia[c].BidPrice * 1000).toPrecision(5);
+    				var cr_last = (obj_cryptopia[c].LastPrice * 1000).toPrecision(4);	//.replace(/(\d)(?=(\d{3})+\.)/g, '$1,');
+    				var ask = (obj_cryptopia[c].AskPrice * 1000).toPrecision(4);
+    				var bid = (obj_cryptopia[c].BidPrice * 1000).toPrecision(4);
     				var buyvolume = (obj_cryptopia[c].BuyVolume).formatMoney(2, '.', ',');
     				var sellvolume = (obj_cryptopia[c].SellVolume).formatMoney(2, '.', ',');
     				arrcryptopia.push({
@@ -151,58 +209,62 @@ router.get('/get-data', async function(req, res, next) {
 			  coins[coin].MarkMin = mmin;
 			  coins[coin].MarkMax = mmax;
 			  coins[coin].Razlika = (((max / min)-1)*100).toPrecision(3);
+
 		}
     	// console.log(JSON.stringify(coins));
     	//brisemo ako nema niakve razlike
+    	//console.log(coins);
     	for (var key in coins) {
 		    if (isNaN(coins[key].Razlika) || coins[key].Razlika == 0) {	
 		        delete coins[key];
 		    }
 		} 
-		// console.log(coins);
+
 		//sortiranje i novi niz
 		var arr = [];
 		for (var key in coins) {
 			// console.log(coins[key][0].ask);					///generisati novi niz za prikaz, sa svim parametrrina
-		    arr.push([key, 
+			if (key != 'EUR' && key != 'USD' && key != 'USD') {	//privremeno izbacujem USD EUR, ne prikazuje kako treba... treba istraziti
+				arr.push([key, 
 		    		coins[key].Razlika, 
 		    		coins[key].MarkMin,
 			  		coins[key].MarkMax
 		    ]);
+			}
 		}      
 		// console.log(arr);
-		arr.sort(function(a, b) {
-		        a = a[1];
-		        b = b[1];
-		        return b - a;
-		        // return a > b ? -1 : (a < b ? 1 : 0);
-		});
-		console.log(arr);
+		// arr.sort(function(a, b) {
+		//         a = a[1];
+		//         b = b[1];
+		//         return b - a;
+		//         // return a > b ? -1 : (a < b ? 1 : 0);
+		// });
+		// console.log(arr);
 		// console.log(arrcryptopia);
-		var results = [];	    
+		
+		var results = [];
+		for (let i = 0; i < arr.length; i++) { 
+			results.push({
+						 	coin: arr[i][0],
+						 	razlika: arr[i][1],
+						 	Lo: arr[i][2],
+						 	Hi: arr[i][3]
+			});
+		}
 		for (let i = 0; i < arr.length; i++) {
 			for (let n = 0; n < arrcryptopia.length; n++) {
 				// console.log(arrcryptopia[n].symbol);
 				if (arr[i][0] == arrcryptopia[n].symbol) {
-					results.push(
-						{
-						 	coin: arr[i][0],
-						 	razlika: arr[i][1],
-						 	Lo: arr[i][2],
-						 	Hi: arr[i][3],
-						 	Cryptopia: arrcryptopia[n].lastprice,
-						 	CrName: arrcryptopia[n].name,
-						 	CrStatus : arrcryptopia[n].status,
-						 	CrListingStatus : arrcryptopia[n].listingstatus,
-						 	CrMessage: arrcryptopia[n].message,
-						 	CrAsk: arrcryptopia[n].askprice,
-						 	CrBid: arrcryptopia[n].bidprice,
-						 	CrBuyVol: arrcryptopia[n].buyvolume,
-						 	CrSellVol: arrcryptopia[n].sellvolume
-						}
-					);
+					results[i].Cryptopia = arrcryptopia[n].lastprice;
+					results[i].CrName = arrcryptopia[n].name;
+					results[i].CrStatus  = arrcryptopia[n].status;
+					results[i].CrListingStatus  = arrcryptopia[n].listingstatus;
+					results[i].CrMessage = arrcryptopia[n].message;
+					results[i].CrAsk = arrcryptopia[n].askprice;
+					results[i].CrBid = arrcryptopia[n].bidprice;
+					results[i].CrBuyVol = arrcryptopia[n].buyvolume;
+					results[i].CrSellVol = arrcryptopia[n].sellvolume;
 				}
-
 			}
 
 		}
@@ -234,7 +296,22 @@ router.get('/get-data', async function(req, res, next) {
 
 			}
 		}
+		for (let i = 0; i < results.length; i++) {
+			for (let n = 0; n < arrbinance.length; n++) {
+				if (results[i].coin == arrbinance[n].symbol) {
+					results[i].BinSymbol = arrbinance[n].symbol;
+					results[i].BinName = arrbinance[n].name;
+					results[i].Binance = arrbinance[n].lastprice;
+					results[i].BinActive = arrbinance[n].active;
+					results[i].BinStatus = arrbinance[n].status;
+					results[i].BinAsk = arrbinance[n].askprice;
+					results[i].BinBid = arrbinance[n].bidprice;
+					results[i].BinBuyVol = arrbinance[n].buyvolume;
+					results[i].BinSellVol = arrbinance[n].sellvolume;
+				}
 
+			}
+		}
 		// console.log(results);
 	  	res.render('index', {results: results});
 	}

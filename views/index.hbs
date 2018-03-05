@@ -10,22 +10,7 @@
             <div>Coin pair/status: {{ this.label }} {{this.status }}</div>
         {{/each}} --}}
 <!-- 		<table id="table_id" class="display">
-    <thead>
-        <tr>
-            <th>Column 1</th>
-            <th>Column 2</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>Row 1 Data 1</td>
-            <td>Row 1 Data 2</td>
-        </tr>
-        <tr>
-            <td>Row 2 Data 1</td>
-            <td>Row 2 Data 2</td>
-        </tr>
-    </tbody>
+
 </table> -->
     <table id="example" class="display nowrap" cellspacing="0">
 	    <thead>
@@ -33,6 +18,7 @@
 	    		<th>Symbol</th>
 	    		<th>Profit %</th>
 	    		<th>Exchange pair (Lo/Hi)</th>
+	    		<th colspan="8">Binance</th>
 	    		<th colspan="9">Cryptopia</th>
 	    		<th colspan="5">Bitfinex</th>
 	    		<th colspan="7">Poloniex</th>
@@ -41,6 +27,15 @@
 	    			<th></th>
 	    			<th></th>
 	    			<th></th>
+	    			<th>Symbol</th>
+	    			<th>Name</th>
+	    			<th>Status</th>
+	    			<th>Last price</th>
+	    			<th>Ask price</th>
+	    			<th>Bid price</th>
+	    			<th>Buy volume</th>
+	    			<th>Sell volume</th>
+
 	    			<th>Name</th>
 	    			<th>Status</th>
 	    			<th>Listing</th>
@@ -73,6 +68,15 @@
 		        		<td>{{{ coin}}}</td>
 		        		<td>{{{ razlika}}}%</td>
 		        		<td>{{{ Lo }}} / {{Hi}}</td>
+		        	{{!-- Binance --}}
+		        		<td>{{{ BinSymbol }}}</td>
+		        		<td>{{{ BinName }}}</td>
+		        		<td>{{{ BinStatus }}}</td>
+		        		<td>{{{ Binance }}}</td>
+		        		<td>{{{ BinAsk }}}</td>
+		        		<td>{{{ BinBid }}}</td>
+		        		<td>{{{ BinBuyVol }}}</td>
+		        		<td>{{{ BinSellVol }}}</td>	        		
 		        	{{!-- Cryptopia --}}
 		        		<td>{{{ CrName }}}</td>
 		        		<td>{{{ CrStatus }}}</td>
